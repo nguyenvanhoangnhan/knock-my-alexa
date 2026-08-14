@@ -1,5 +1,8 @@
+import type { MessageQueue } from './custom';
+
 export interface Env {
   TOKENS: KVNamespace;
+  QUEUE: DurableObjectNamespace<MessageQueue>;
   /** Region of the Amazon account the skill belongs to, decides the Event Gateway host. */
   ALEXA_REGION: 'NA' | 'EU' | 'FE';
   /** From the skill's Permissions → Send Alexa Events page (wrangler secret). */

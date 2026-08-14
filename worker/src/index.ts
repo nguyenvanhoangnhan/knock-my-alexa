@@ -1,6 +1,8 @@
 import type { AlexaDirective, Env } from './types';
 import { DOORBELLS, handleDirective } from './directives';
 import { handleCustomSkill, queueMessage, type CustomSkillRequest } from './custom';
+
+export { MessageQueue } from './custom';
 import { getAccessToken } from './lwa';
 
 const EVENT_GATEWAYS: Record<Env['ALEXA_REGION'], string> = {

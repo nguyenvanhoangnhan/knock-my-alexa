@@ -6,6 +6,10 @@
   "kv_namespaces": [
     { "binding": "TOKENS", "id": "57d91eb919d049c1b96c66dd62da024f" }
   ],
+  "durable_objects": {
+    "bindings": [{ "name": "QUEUE", "class_name": "MessageQueue" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["MessageQueue"] }],
   "vars": {
     "ALEXA_REGION": "NA"
   }
