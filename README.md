@@ -1,5 +1,5 @@
 # knock-my-alexa
-
+(basically VoiceMonkey clone)
 Make Alexa ring a doorbell and speak your own message from a plain HTTP request: a self-hosted alternative to Voice Monkey, built on Cloudflare Workers with a minimal AWS Lambda shim.
 
 ```
