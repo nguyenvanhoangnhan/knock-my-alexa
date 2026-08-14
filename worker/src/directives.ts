@@ -8,12 +8,7 @@ function header(namespace: string, name: string, extra: Record<string, unknown> 
   return { namespace, name, payloadVersion: '3', messageId: crypto.randomUUID(), ...extra };
 }
 
-export async function handleDirective(request: Request, env: Env): Promise<Response> {
-  if (!env.DIRECTIVE_SECRET || request.headers.get('x-directive-secret') !== env.DIRECTIVE_SECRET) {
-    return Response.json({ error: 'unauthorized' }, { status: 401 });
-  }
-
-  const body = await request.json<AlexaDirective>();
+export async function handleDirective(env: Env, body: AlexaDirective): Promise<Response> {
   const { namespace, name } = body.directive.header;
 
   if (namespace === 'Alexa.Discovery' && name === 'Discover') return discoverResponse();

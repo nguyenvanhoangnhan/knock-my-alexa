@@ -1,5 +1,6 @@
-import type { Env } from './types';
+import type { AlexaDirective, Env } from './types';
 import { DOORBELLS, handleDirective } from './directives';
+import { handleCustomSkill, queueMessage, type CustomSkillRequest } from './custom';
 import { getAccessToken } from './lwa';
 
 const EVENT_GATEWAYS: Record<Env['ALEXA_REGION'], string> = {
@@ -11,12 +12,26 @@ const EVENT_GATEWAYS: Record<Env['ALEXA_REGION'], string> = {
 export default {
   async fetch(request, env): Promise<Response> {
     const url = new URL(request.url);
-    if (request.method === 'POST' && url.pathname === '/alexa/directive') return handleDirective(request, env);
+    if (request.method === 'POST' && url.pathname === '/alexa/directive') return handleAlexa(request, env);
     if (request.method === 'POST' && url.pathname === '/trigger') return handleTrigger(request, env);
     if (request.method === 'GET' && url.pathname === '/health') return Response.json({ ok: true });
     return Response.json({ error: 'not found' }, { status: 404 });
   },
 } satisfies ExportedHandler<Env>;
+
+/** Both the Smart Home skill (directives) and the custom skill land here via the Lambda shim. */
+async function handleAlexa(request: Request, env: Env): Promise<Response> {
+  if (!env.DIRECTIVE_SECRET || request.headers.get('x-directive-secret') !== env.DIRECTIVE_SECRET) {
+    return Response.json({ error: 'unauthorized' }, { status: 401 });
+  }
+  const body = await request.json<AlexaDirective & CustomSkillRequest>();
+  if (body.directive) return handleDirective(env, body as AlexaDirective);
+  return handleCustomSkill(env, body);
+}
+
+function escapeXml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 async function handleTrigger(request: Request, env: Env): Promise<Response> {
   const auth = request.headers.get('authorization');
@@ -24,10 +39,22 @@ async function handleTrigger(request: Request, env: Env): Promise<Response> {
     return Response.json({ error: 'unauthorized' }, { status: 401 });
   }
 
-  const endpointId = new URL(request.url).searchParams.get('device') ?? DOORBELLS[0].endpointId;
+  let body: { device?: string; speech?: string; message?: string } = {};
+  try {
+    body = await request.json();
+  } catch {
+    // no body is fine — plain doorbell press
+  }
+
+  const endpointId =
+    body.device ?? new URL(request.url).searchParams.get('device') ?? DOORBELLS[0].endpointId;
   if (!DOORBELLS.some((d) => d.endpointId === endpointId)) {
     return Response.json({ error: `unknown device '${endpointId}'` }, { status: 404 });
   }
+
+  // Queue the message first so it is in KV before the Routine opens the custom skill.
+  const speech = body.speech ?? (body.message ? `<speak>${escapeXml(body.message)}</speak>` : undefined);
+  if (speech) await queueMessage(env, speech);
 
   let accessToken: string;
   try {

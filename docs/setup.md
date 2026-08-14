@@ -100,6 +100,31 @@ curl -X POST https://<your-worker>.workers.dev/trigger \
 
 `{"ok":true,"gatewayStatus":202}` means Alexa accepted the doorbell press — the Routine runs.
 
+## Optional: speak the actual message content
+
+Routines can't carry dynamic text, so announcements with real content need one more piece — a **Custom skill** that the Routine opens, which then speaks whatever `/trigger` queued (this is also how Voice Monkey does it):
+
+1. Create a second skill: **Custom** model, hosting "Provision your own", endpoint = the **same Lambda ARN**. Give it an invocation name (e.g. `knock messages`), add one dummy intent with any sample utterance so the model builds, then **Build Skill**.
+2. Allow it to invoke the Lambda (note the different principal for custom skills):
+
+```sh
+aws lambda add-permission --function-name knock-my-alexa-shim \
+  --statement-id alexa-custom-skill --action lambda:InvokeFunction \
+  --principal alexa-appkit.amazon.com --event-source-token <CUSTOM_SKILL_ID>
+```
+
+3. Test tab → set to **Development** so the skill is live on your account.
+4. Edit your Routine: *When doorbell is pressed → Add action → Skills → your custom skill.*
+5. Send content with the trigger — `message` (plain text) or `speech` (raw SSML):
+
+```sh
+curl -X POST https://<your-worker>.workers.dev/trigger \
+  -H "Authorization: Bearer <TRIGGER_TOKEN>" -H "content-type: application/json" \
+  -d '{"message":"Someone knocked on the website"}'
+```
+
+The doorbell rings → the Routine opens the skill → the skill replies with the queued SSML → the Echo speaks it. Messages queue for 10 minutes and are spoken once.
+
 ## Troubleshooting
 
 | Symptom | Cause |
