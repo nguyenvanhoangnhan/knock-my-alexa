@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "knock-my-alexa",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-06-01",
+  "kv_namespaces": [
+    { "binding": "TOKENS", "id": "57d91eb919d049c1b96c66dd62da024f" }
+  ],
+  "vars": {
+    "ALEXA_REGION": "NA"
+  }
+}
