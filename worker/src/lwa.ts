@@ -17,7 +17,7 @@ interface LwaTokenResponse {
 
 async function requestTokens(env: Env, params: Record<string, string>): Promise<LwaTokenResponse> {
   if (!env.ALEXA_CLIENT_ID || !env.ALEXA_CLIENT_SECRET) {
-    throw new Error('ALEXA_CLIENT_ID / ALEXA_CLIENT_SECRET not configured yet — set them with `wrangler secret put`');
+    throw new Error('ALEXA_CLIENT_ID / ALEXA_CLIENT_SECRET not configured yet, set them with `wrangler secret put`');
   }
   const res = await fetch(LWA_TOKEN_URL, {
     method: 'POST',
@@ -56,7 +56,7 @@ export async function exchangeGrantCode(env: Env, code: string): Promise<void> {
 export async function getAccessToken(env: Env): Promise<string> {
   const raw = await env.TOKENS.get(KV_KEY);
   if (!raw) {
-    throw new Error('No LWA tokens stored yet — enable the skill in the Alexa app so AcceptGrant can run');
+    throw new Error('No LWA tokens stored yet, enable the skill in the Alexa app so AcceptGrant can run');
   }
   let tokens = JSON.parse(raw) as StoredTokens;
   if (Date.now() > tokens.expires_at - 60_000) {

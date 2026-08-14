@@ -43,7 +43,7 @@ async function handleTrigger(request: Request, env: Env): Promise<Response> {
   try {
     body = await request.json();
   } catch {
-    // no body is fine — plain doorbell press
+    // no body is fine, plain doorbell press
   }
 
   const endpointId =
@@ -60,7 +60,7 @@ async function handleTrigger(request: Request, env: Env): Promise<Response> {
   try {
     accessToken = await getAccessToken(env);
   } catch (err) {
-    // Not linked yet (or LWA rejected the refresh) — a config problem, not a gateway one.
+    // Not linked yet (or LWA rejected the refresh), a config problem, not a gateway one.
     return Response.json({ ok: false, error: String(err) }, { status: 409 });
   }
 

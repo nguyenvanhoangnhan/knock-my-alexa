@@ -34,13 +34,13 @@ aws lambda create-function --function-name knock-my-alexa-shim \
   --environment "Variables={WORKER_URL=https://<your-worker>.workers.dev,DIRECTIVE_SECRET=<DIRECTIVE_SECRET>}"
 ```
 
-Note the returned function ARN — the skill needs it in step 4.
+Note the returned function ARN, the skill needs it in step 4.
 
 ## 3. Create a Login with Amazon security profile
 
 At https://developer.amazon.com/loginwithamazon/console/site/lwa/overview.html:
 
-- **Create a New Security Profile** — name/description anything, any URL for the privacy policy.
+- **Create a New Security Profile**, name/description anything, any URL for the privacy policy.
 - Note the profile's **Client ID** and **Client Secret** (used in step 5).
 
 ## 4. Create the Smart Home skill
@@ -57,7 +57,7 @@ aws lambda add-permission --function-name knock-my-alexa-shim \
   --principal alexa-connectedhome.amazon.com --event-source-token <SKILL_ID>
 ```
 
-The skill stays in **development mode** forever — that's fine, it works permanently on your own account.
+The skill stays in **development mode** forever, that's fine, it works permanently on your own account.
 
 ## 5. Account linking
 
@@ -83,13 +83,13 @@ npx wrangler secret put ALEXA_CLIENT_SECRET
 
 ## 7. Enable and link the skill
 
-Alexa app → More → Skills & Games → Your Skills → **Dev** → your skill → Enable, sign in with your Amazon account. Behind the scenes Alexa sends `AcceptGrant` → Lambda → Worker, which exchanges the grant code and stores tokens in KV. If this fails, the Alexa app shows a linking error — check `npx wrangler tail`.
+Alexa app → More → Skills & Games → Your Skills → **Dev** → your skill → Enable, sign in with your Amazon account. Behind the scenes Alexa sends `AcceptGrant` → Lambda → Worker, which exchanges the grant code and stores tokens in KV. If this fails, the Alexa app shows a linking error, check `npx wrangler tail`.
 
 ## 8. Discover devices and create a Routine
 
 - "Alexa, discover devices" (or app → Devices → +).
 - The doorbell(s) from `worker/src/directives.ts` appear.
-- App → Routines → **When**: doorbell is pressed → **Then**: announcement, TTS, lights — whatever you want.
+- App → Routines → **When**: doorbell is pressed → **Then**: announcement, TTS, lights, whatever you want.
 
 ## 9. Trigger it
 
@@ -98,11 +98,11 @@ curl -X POST https://<your-worker>.workers.dev/trigger \
   -H "Authorization: Bearer <TRIGGER_TOKEN>"
 ```
 
-`{"ok":true,"gatewayStatus":202}` means Alexa accepted the doorbell press — the Routine runs.
+`{"ok":true,"gatewayStatus":202}` means Alexa accepted the doorbell press, the Routine runs.
 
 ## Optional: speak the actual message content
 
-Routines can't carry dynamic text, so announcements with real content need one more piece — a **Custom skill** that the Routine opens, which then speaks whatever `/trigger` queued (this is also how Voice Monkey does it):
+Routines can't carry dynamic text, so announcements with real content need one more piece, a **Custom skill** that the Routine opens, which then speaks whatever `/trigger` queued (this is also how Voice Monkey does it):
 
 1. Create a second skill: **Custom** model, hosting "Provision your own", endpoint = the **same Lambda ARN**. Give it an invocation name (e.g. `knock messages`), add one dummy intent with any sample utterance so the model builds, then **Build Skill**.
 2. Allow it to invoke the Lambda (note the different principal for custom skills):
@@ -115,7 +115,7 @@ aws lambda add-permission --function-name knock-my-alexa-shim \
 
 3. Test tab → set to **Development** so the skill is live on your account.
 4. Edit your Routine: *When doorbell is pressed → Add action → Skills → your custom skill.*
-5. Send content with the trigger — `message` (plain text) or `speech` (raw SSML):
+5. Send content with the trigger, `message` (plain text) or `speech` (raw SSML):
 
 ```sh
 curl -X POST https://<your-worker>.workers.dev/trigger \
@@ -129,7 +129,7 @@ The doorbell rings → the Routine opens the skill → the skill replies with th
 
 | Symptom | Cause |
 |---|---|
-| `/trigger` → 409 "No LWA tokens stored yet" | AcceptGrant never ran — (re-)enable the skill with account linking (step 7) |
+| `/trigger` → 409 "No LWA tokens stored yet" | AcceptGrant never ran, (re-)enable the skill with account linking (step 7) |
 | Gateway 401 `INVALID_ACCESS_TOKEN_EXCEPTION` | `ALEXA_REGION` doesn't match your Amazon account region |
 | Gateway 403 `SKILL_NEVER_ENABLED` | Skill disabled or was re-enabled without relinking |
 | Devices not found during discovery | Lambda lacks the add-permission from step 4, or wrong endpoint ARN in the skill |

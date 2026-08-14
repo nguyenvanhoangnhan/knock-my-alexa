@@ -1,6 +1,6 @@
 export interface Env {
   TOKENS: KVNamespace;
-  /** Region of the Amazon account the skill belongs to — decides the Event Gateway host. */
+  /** Region of the Amazon account the skill belongs to, decides the Event Gateway host. */
   ALEXA_REGION: 'NA' | 'EU' | 'FE';
   /** From the skill's Permissions → Send Alexa Events page (wrangler secret). */
   ALEXA_CLIENT_ID?: string;
