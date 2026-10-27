@@ -28,7 +28,7 @@ aws iam attach-role-policy --role-name knock-my-alexa-lambda \
 
 cd lambda && zip shim.zip index.mjs
 aws lambda create-function --function-name knock-my-alexa-shim \
-  --runtime nodejs22.x --handler index.handler --timeout 10 \
+  --runtime nodejs24.x --handler index.handler --timeout 10 \
   --zip-file fileb://shim.zip \
   --role arn:aws:iam::<ACCOUNT_ID>:role/knock-my-alexa-lambda \
   --environment "Variables={WORKER_URL=https://<your-worker>.workers.dev,DIRECTIVE_SECRET=<DIRECTIVE_SECRET>}"
